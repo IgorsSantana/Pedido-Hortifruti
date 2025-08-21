@@ -69,7 +69,7 @@
     <h2>Lançar Pedido</h2>
 
     <div class="area-busca">
-        <input type="text" id="campo-busca" onkeyup="filtrarTabela()" placeholder="🔎 Buscar por nome ou código do produto...">
+        <input type="text" id="campo-busca" placeholder="🔎 Buscar por nome ou código do produto...">
     </div>
 
     <div class="table-container">
@@ -80,8 +80,10 @@
     </div>
 
     <div class="botoes">
-        <button onclick="gerarTxtTotal()">Gerar Pedido Total</button>
-        <button onclick="gerarTxtPorLoja()" class="secundario">Gerar Pedidos por Loja</button>
+        <button id="btn-total">Gerar Pedido Total</button>
+        <button id="btn-por-loja" class="secundario">Gerar Pedidos por Loja</button>
+        <button id="btn-exportar-pdf" class="secundario">Exportar PDF</button>
+        <button id="btn-limpar-pedido" class="secundario">Limpar Pedido</button>
     </div>
 
     <div id="output-container">
@@ -94,13 +96,19 @@
         <div class="form-adicionar">
             <fieldset>
                 <legend>Adicionar Novo Produto (Unitário)</legend>
+                <label for="novo-grupo">Grupo</label>
                 <input type="text" id="novo-grupo" placeholder="Grupo (ex: FRUTAS)">
+                <label for="novo-codigo">Código do Produto</label>
                 <input type="text" id="novo-codigo" placeholder="Código do Produto (único)">
+                <label for="novo-nome">Nome do Produto</label>
                 <input type="text" id="novo-nome" placeholder="Nome do Produto">
+                <label for="novo-fator">Unidades por Caixa</label>
                 <input type="number" id="novo-fator" placeholder="Unidades por Caixa">
+                <label for="novo-custo-caixa">Custo da Caixa</label>
                 <input type="number" id="novo-custo-caixa" placeholder="Custo da Caixa (ex: 70.50)">
+                <label for="novo-custo-unidade">Custo da Unidade</label>
                 <input type="number" id="novo-custo-unidade" placeholder="Custo da Unidade (ex: 0.58)">
-                <button type="button" class="secundario" onclick="adicionarProdutoManual()">Adicionar Produto</button>
+                <button type="button" id="btn-adicionar-produto" class="secundario">Adicionar Produto</button>
             </fieldset>
         </div>
         <div class="upload-lista">
@@ -108,12 +116,13 @@
                 <legend>Carregar Lista de Produtos (.csv)</legend>
                 <p>Selecione um arquivo <code>.csv</code> separado por ponto e vírgula <code>;</code> com as colunas na ordem:</p>
                 <p><code>GRUPO;CODIGO;NOME;FATOR;CUSTOCAIXA;CUSTOUNIDADE</code></p>
-                <input type="file" id="upload-csv" accept=".csv" onchange="carregarProdutosDeCSV(event)">
+                <input type="file" id="upload-csv" accept=".csv">
             </fieldset>
         </div>
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="js/banco_de_dados.js"></script>
 <script src="js/app.js"></script>
 
