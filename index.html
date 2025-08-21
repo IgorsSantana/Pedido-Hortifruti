@@ -9,31 +9,18 @@
         .container { width: 98%; max-width: 1800px; margin: 0 auto; }
         h1, h2 { text-align: center; color: #333; }
         h2 { border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-top: 40px; }
-        .table-container { max-height: 70vh; overflow-y: auto; position: relative; }
+        .table-container { max-height: 70vh; overflow-y: auto; position: relative; border: 1px solid #ddd; border-top: none; }
         table { width: 100%; border-collapse: collapse; margin-top: 0; font-size: 12px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); table-layout: fixed; }
         th, td { border: 1px solid #ddd; padding: 8px 3px; text-align: center; overflow: hidden; white-space: nowrap; transition: background-color 0.2s; }
         th { background-color: #f2f2f2; font-weight: 600; }
-        #tabela-produtos tbody tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        /* Alterado: A cor da linha par agora é controlada por uma classe */
+        .linha-par { background-color: #f9f9f9; }
         #tabela-produtos tbody tr:hover { background-color: #f0f0f0; }
 
-        #tabela-produtos thead {
-            background-color: #f2f2f2;
-        }
-
-        /* Estilo para Cabeçalho Fixo com Múltiplas Linhas */
-        #tabela-produtos thead tr:first-child th {
-            position: -webkit-sticky;
-            position: sticky;
-            top: -1px; 
-            z-index: 11; 
-        }
-        #tabela-produtos thead tr:last-child th {
-            position: -webkit-sticky;
-            position: sticky;
-            /* --- MUDANÇA AQUI: Ajustado para 34px para forçar uma sobreposição de 1px --- */
-            top: 34px;
-            z-index: 10;
-        }
+        #tabela-produtos thead { background-color: #f2f2f2; }
+        #tabela-produtos thead tr:first-child th { position: -webkit-sticky; position: sticky; top: -1px; z-index: 11; }
+        #tabela-produtos thead tr:last-child th { position: -webkit-sticky; position: sticky; top: 34px; z-index: 10; }
 
         .col-grupo { width: 7%; } .col-codigo { width: 6%; } .col-descricao { width: 20%; text-align: left; text-overflow: ellipsis; }
         .col-fator { width: 4%; } .col-custo { width: 6.5%; } .col-input { width: 4%; } .col-total { width: 5%; }
@@ -57,6 +44,22 @@
         button.secundario:hover { background-color: #0069d9; }
         #output-container { text-align: left; max-width: 800px; margin: 20px auto; }
         #output { margin-top: 10px; white-space: pre; font-family: 'Courier New', Courier, monospace; background-color: #e9ecef; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        
+        /* --- NOVO: Estilo para a área de busca --- */
+        .area-busca {
+            padding: 10px;
+            background-color: #e9ecef;
+            border: 1px solid #ddd;
+            border-bottom: none;
+        }
+        #campo-busca {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
@@ -64,6 +67,11 @@
 <div class="container">
     <h1>Pedido Hortifruti</h1>
     <h2>Lançar Pedido</h2>
+
+    <div class="area-busca">
+        <input type="text" id="campo-busca" onkeyup="filtrarTabela()" placeholder="🔎 Buscar por nome ou código do produto...">
+    </div>
+
     <div class="table-container">
         <table id="tabela-produtos">
             <thead></thead>
