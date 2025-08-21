@@ -5,97 +5,55 @@ const lojas = ['FCL3', 'FCL1', 'BCS', 'SJN', 'FCL2', 'MEP'];
 // --- FUNÇÕES DE GERENCIAMENTO DE PRODUTOS ---
 function adicionarProdutoManual() {
     const novoProduto = {
-        grupo: document.getElementById('novo-grupo').value.toUpperCase(),
-        codigo: document.getElementById('novo-codigo').value,
-        nome: document.getElementById('novo-nome').value.toUpperCase(),
-        fator: parseFloat(document.getElementById('novo-fator').value) || 0,
-        custoCaixa: parseFloat(document.getElementById('novo-custo-caixa').value) || 0,
-        custoUnidade: parseFloat(document.getElementById('novo-custo-unidade').value) || 0,
+        grupo: document.getElementById('novo-grupo').value.toUpperCase(), codigo: document.getElementById('novo-codigo').value,
+        nome: document.getElementById('novo-nome').value.toUpperCase(), fator: parseFloat(document.getElementById('novo-fator').value) || 0,
+        custoCaixa: parseFloat(document.getElementById('novo-custo-caixa').value) || 0, custoUnidade: parseFloat(document.getElementById('novo-custo-unidade').value) || 0,
     };
-    if (!novoProduto.codigo || !novoProduto.nome || !novoProduto.fator) {
-        alert("Por favor, preencha pelo menos Código, Nome e Unidades por Caixa.");
-        return;
-    }
-    if (produtos.some(p => p.codigo === novoProduto.codigo)) {
-        alert("Erro: Já existe um produto com este código.");
-        return;
-    }
+    if (!novoProduto.codigo || !novoProduto.nome || !novoProduto.fator) { alert("Por favor, preencha pelo menos Código, Nome e Unidades por Caixa."); return; }
+    if (produtos.some(p => p.codigo === novoProduto.codigo)) { alert("Erro: Já existe um produto com este código."); return; }
     produtos.push(novoProduto);
-    renderizarLinhaProduto(novoProduto, document.querySelector('#tabela-produtos tbody'));
-    document.getElementById('novo-grupo').value = '';
-    document.getElementById('novo-codigo').value = '';
-    document.getElementById('novo-nome').value = '';
-    document.getElementById('novo-fator').value = '';
-    document.getElementById('novo-custo-caixa').value = '';
-    document.getElementById('novo-custo-unidade').value = '';
+    renderizarTabelaCompleta(); // Renderiza a tabela inteira para reordenar alfabeticamente
     alert(`Produto "${novoProduto.nome}" adicionado com sucesso!`);
 }
-
 function carregarProdutosDeCSV(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+    const file = event.target.files[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = function(e) {
-        const text = e.target.result;
-        const linhas = text.split('\n').filter(linha => linha.trim() !== '');
-        const novasLinhas = linhas.slice(1);
-        let adicionados = 0;
+        const text = e.target.result; const linhas = text.split('\n').filter(linha => linha.trim() !== '');
+        const novasLinhas = linhas.slice(1); let adicionados = 0;
         novasLinhas.forEach(linha => {
-            const colunas = linha.split(';');
-            if (colunas.length < 6) return;
+            const colunas = linha.split(';'); if (colunas.length < 6) return;
             const novoProduto = {
-                grupo: colunas[0].trim().toUpperCase(),
-                codigo: colunas[1].trim(),
-                nome: colunas[2].trim().toUpperCase(),
-                fator: parseFloat(colunas[3].replace(',', '.')) || 0,
-                custoCaixa: parseFloat(colunas[4].replace(',', '.')) || 0,
+                grupo: colunas[0].trim().toUpperCase(), codigo: colunas[1].trim(), nome: colunas[2].trim().toUpperCase(),
+                fator: parseFloat(colunas[3].replace(',', '.')) || 0, custoCaixa: parseFloat(colunas[4].replace(',', '.')) || 0,
                 custoUnidade: parseFloat(colunas[5].replace(',', '.')) || 0,
             };
-            if (novoProduto.codigo && !produtos.some(p => p.codigo === novoProduto.codigo)) {
-                produtos.push(novoProduto);
-                adicionados++;
-            }
+            if (novoProduto.codigo && !produtos.some(p => p.codigo === novoProduto.codigo)) { produtos.push(novoProduto); adicionados++; }
         });
-        renderizarTabelaCompleta();
-        alert(`${adicionados} novos produtos foram adicionados da lista! A tabela foi atualizada.`);
+        renderizarTabelaCompleta(); alert(`${adicionados} novos produtos foram adicionados da lista! A tabela foi atualizada.`);
     };
     reader.readAsText(file);
 }
 
 // --- FUNÇÕES DE RENDERIZAÇÃO E CÁLCULO ---
-function formatarMoeda(valor) {
-    return valor.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-}
-
+function formatarMoeda(valor) { return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
 function renderizarCabecalho() {
     const thead = document.querySelector('#tabela-produtos thead');
     let headerHtml = `<tr><th class="col-grupo" rowspan="2">Grupo</th><th class="col-codigo" rowspan="2">Código</th><th class="col-descricao" rowspan="2">Descrição</th>
                           <th class="col-fator" rowspan="2">Un/Cx</th><th class="col-custo" rowspan="2">Custo Caixa</th><th class="col-custo" rowspan="2">Custo Unid.</th>`;
-    lojas.forEach(loja => {
-        headerHtml += `<th colspan="2">${loja}</th>`;
-    });
+    lojas.forEach(loja => { headerHtml += `<th colspan="2">${loja}</th>`; });
     headerHtml += `<th class="col-total" rowspan="2">Total Unid.</th></tr><tr>`;
-    lojas.forEach(() => {
-        headerHtml += `<th class="col-input">Cx</th><th class="col-input">Un</th>`;
-    });
+    lojas.forEach(() => { headerHtml += `<th class="col-input">Cx</th><th class="col-input">Un</th>`; });
     headerHtml += `</tr>`;
     thead.innerHTML = headerHtml;
 }
-
 function renderizarLinhaProduto(p, tbody) {
-    const row = document.createElement('tr');
-    row.id = `produto-${p.codigo}`;
+    const row = document.createElement('tr'); row.id = `produto-${p.codigo}`;
     let inputsHtml = '';
-
     lojas.forEach(loja => {
         inputsHtml += `<td class="col-input"><input type="number" min="0" data-loja="${loja}" class="input-cx" oninput="atualizarTotalProduto('${p.codigo}')"></td>
                        <td class="col-input"><input type="number" min="0" data-loja="${loja}" class="input-un" oninput="atualizarTotalProduto('${p.codigo}')"></td>`;
     });
-
-    // CORRIGIDO: A ordem das colunas agora bate com o cabeçalho
     row.innerHTML = `<td class="col-grupo grupo-info">${p.grupo}</td>
                     <td class="col-codigo">${p.codigo}</td>
                     <td class="col-descricao produto-info" title="${p.nome}">${p.nome}</td>
@@ -104,20 +62,17 @@ function renderizarLinhaProduto(p, tbody) {
                     <td class="col-custo"><input type="text" value="${formatarMoeda(p.custoUnidade)}" id="custo-unidade-${p.codigo}" class="input-edit readonly" readonly></td>
                     ${inputsHtml}
                     <td class="col-total total-geral" id="total-${p.codigo}">0</td>`;
-
     tbody.appendChild(row);
 }
-
 function renderizarTabelaCompleta() {
     const tbody = document.querySelector('#tabela-produtos tbody');
     tbody.innerHTML = '';
     produtos.sort((a, b) => a.nome.localeCompare(b.nome));
     produtos.forEach(p => renderizarLinhaProduto(p, tbody));
+    aplicarCoresAlternadas(); // Aplica as cores após renderizar
 }
-
 function atualizarProduto(codigo) {
-    const produto = produtos.find(p => p.codigo === codigo);
-    if (!produto) return;
+    const produto = produtos.find(p => p.codigo === codigo); if (!produto) return;
     const novoFator = parseFloat(document.getElementById(`fator-${codigo}`).value) || 0;
     const novoCustoCaixa = parseFloat(document.getElementById(`custo-caixa-${codigo}`).value) || 0;
     const novoCustoUnidade = novoFator > 0 ? novoCustoCaixa / novoFator : 0;
@@ -127,82 +82,85 @@ function atualizarProduto(codigo) {
     document.getElementById(`custo-unidade-${codigo}`).value = formatarMoeda(novoCustoUnidade);
     atualizarTotalProduto(codigo);
 }
-
 function atualizarTotalProduto(codigo) {
-    const produto = produtos.find(p => p.codigo === codigo);
-    const linhaProduto = document.getElementById(`produto-${codigo}`);
+    const produto = produtos.find(p => p.codigo === codigo); const linhaProduto = document.getElementById(`produto-${p.codigo}`);
     let totalUnidadesProduto = 0;
     lojas.forEach(loja => {
-        const inputCx = linhaProduto.querySelector(`.input-cx[data-loja="${loja}"]`);
-        const inputUn = linhaProduto.querySelector(`.input-un[data-loja="${loja}"]`);
+        const inputCx = linhaProduto.querySelector(`.input-cx[data-loja="${loja}"]`); const inputUn = linhaProduto.querySelector(`.input-un[data-loja="${loja}"]`);
         totalUnidadesProduto += ((parseInt(inputCx.value) || 0) * produto.fator) + (parseInt(inputUn.value) || 0);
     });
-    document.getElementById(`total-${codigo}`).textContent = totalUnidadesProduto;
+    document.getElementById(`total-${p.codigo}`).textContent = totalUnidadesProduto;
 }
 
+// --- NOVA FUNÇÃO DE BUSCA E FILTRO ---
+function aplicarCoresAlternadas() {
+    const linhasVisiveis = document.querySelectorAll('#tabela-produtos tbody tr:not([style*="display: none"])');
+    linhasVisiveis.forEach((linha, index) => {
+        linha.classList.remove('linha-par');
+        if (index % 2 === 1) { // Linhas pares (índice 1, 3, 5...)
+            linha.classList.add('linha-par');
+        }
+    });
+}
+
+function filtrarTabela() {
+    const termoBusca = document.getElementById('campo-busca').value.toUpperCase();
+    const linhas = document.querySelectorAll('#tabela-produtos tbody tr');
+
+    linhas.forEach(linha => {
+        const nomeProduto = linha.querySelector('.produto-info').textContent.toUpperCase();
+        const codigoProduto = linha.querySelector('.col-codigo').textContent.toUpperCase();
+
+        if (nomeProduto.includes(termoBusca) || codigoProduto.includes(termoBusca)) {
+            linha.style.display = ''; // Mostra a linha
+        } else {
+            linha.style.display = 'none'; // Esconde a linha
+        }
+    });
+
+    aplicarCoresAlternadas(); // Reaplica as cores para manter o padrão
+}
+
+
+// --- FUNÇÕES DE GERAÇÃO DE ARQUIVOS ---
 function gerarTxtTotal() {
     let conteudoTxt = '';
     produtos.forEach(p => {
         const totalCalculado = document.getElementById(`total-${p.codigo}`).textContent;
         if (parseInt(totalCalculado) > 0) {
-            const codigoFormatado = p.codigo.toString().padStart(13, '0');
-            const quantidadeFormatada = totalCalculado.toString().padStart(6, '0');
-            const custoEmCentavos = Math.round(p.custoUnidade * 100);
-            const custoFormatado = custoEmCentavos.toString().padStart(6, '0');
-            const linhaFormatada = `${codigoFormatado}${quantidadeFormatada}${custoFormatado}\n`;
+            const linhaFormatada = `${p.codigo.toString().padStart(13, '0')}${totalCalculado.toString().padStart(6, '0')}${Math.round(p.custoUnidade * 100).toString().padStart(6, '0')}\n`;
             conteudoTxt += linhaFormatada;
         }
     });
     document.getElementById('output').textContent = conteudoTxt || "Nenhuma quantidade foi inserida para o pedido total.";
-    if (conteudoTxt) {
-        downloadTxt(conteudoTxt, `pedido_TOTAL_${new Date().toISOString().slice(0,10)}.txt`);
-        alert("Arquivo de Pedido Total gerado com sucesso!");
-    }
+    if (conteudoTxt) { downloadTxt(conteudoTxt, `pedido_TOTAL_${new Date().toISOString().slice(0,10)}.txt`); }
 }
-
 function gerarTxtPorLoja() {
     let algumPedidoGerado = false;
     lojas.forEach(loja => {
         let conteudoTxtLoja = '';
         produtos.forEach(p => {
             const linhaProduto = document.getElementById(`produto-${p.codigo}`);
-            const inputCx = linhaProduto.querySelector(`.input-cx[data-loja="${loja}"]`);
-            const inputUn = linhaProduto.querySelector(`.input-un[data-loja="${loja}"]`);
-            const qtdCx = parseInt(inputCx.value) || 0;
-            const qtdUn = parseInt(inputUn.value) || 0;
-            const totalUnidadesLoja = (qtdCx * p.fator) + qtdUn;
+            const inputCx = linhaProduto.querySelector(`.input-cx[data-loja="${loja}"]`); const inputUn = linhaProduto.querySelector(`.input-un[data-loja="${loja}"]`);
+            const totalUnidadesLoja = ((parseInt(inputCx.value) || 0) * p.fator) + (parseInt(inputUn.value) || 0);
             if (totalUnidadesLoja > 0) {
-                const codigoFormatado = p.codigo.toString().padStart(13, '0');
-                const quantidadeFormatada = totalUnidadesLoja.toString().padStart(6, '0');
-                const custoEmCentavos = Math.round(p.custoUnidade * 100);
-                const custoFormatado = custoEmCentavos.toString().padStart(6, '0');
-                const linhaFormatada = `${codigoFormatado}${quantidadeFormatada}${custoFormatado}\n`;
+                const linhaFormatada = `${p.codigo.toString().padStart(13, '0')}${totalUnidadesLoja.toString().padStart(6, '0')}${Math.round(p.custoUnidade * 100).toString().padStart(6, '0')}\n`;
                 conteudoTxtLoja += linhaFormatada;
             }
         });
-
-        // CORRIGIDO: Removido todo o código duplicado daqui
         if (conteudoTxtLoja) {
             algumPedidoGerado = true;
             document.getElementById('output').textContent = conteudoTxtLoja;
             downloadTxt(conteudoTxtLoja, `pedido_${loja}_${new Date().toISOString().slice(0,10)}.txt`);
         }
     });
-    if (algumPedidoGerado) {
-        alert("Arquivos de pedido por loja gerados com sucesso!");
-    } else {
-        alert("Nenhuma quantidade foi inserida para gerar pedidos por loja.");
-    }
+    if (!algumPedidoGerado) { alert("Nenhuma quantidade foi inserida para gerar pedidos por loja."); }
 }
-
 function downloadTxt(text, filename) {
     const element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download', filename);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+    element.style.display = 'none'; document.body.appendChild(element); element.click(); document.body.removeChild(element);
 }
 
 // --- INICIALIZAÇÃO DA PÁGINA ---
@@ -210,3 +168,41 @@ window.onload = () => {
     renderizarCabecalho();
     renderizarTabelaCompleta();
 };
+
+function atualizarProduto(codigo) {
+    const produto = produtos.find(p => p.codigo === codigo);
+    if (!produto) return;
+
+    // Lê os novos valores dos campos de edição
+    const novoFator = parseFloat(document.getElementById(`fator-${codigo}`).value) || 0;
+    const novoCustoCaixa = parseFloat(document.getElementById(`custo-caixa-${codigo}`).value) || 0;
+    
+    // Calcula o novo custo unitário
+    const novoCustoUnidade = novoFator > 0 ? novoCustoCaixa / novoFator : 0;
+
+    // Atualiza o objeto do produto na memória
+    produto.fator = novoFator;
+    produto.custoCaixa = novoCustoCaixa;
+    produto.custoUnidade = novoCustoUnidade;
+
+    // Atualiza o campo de custo unitário na tela
+    document.getElementById(`custo-unidade-${codigo}`).value = formatarMoeda(novoCustoUnidade);
+
+    // **CHAMA A ATUALIZAÇÃO DO TOTAL GERAL** (importante)
+    atualizarTotalProduto(codigo);
+}
+
+// ATUALIZAÇÃO DO TOTAL GERAL
+function atualizarTotalProduto(codigo) {
+    const produto = produtos.find(p => p.codigo === codigo);
+    const linhaProduto = document.getElementById(`produto-${codigo}`);
+    let totalUnidadesProduto = 0;
+
+    lojas.forEach(loja => {
+        const inputCx = linhaProduto.querySelector(`.input-cx[data-loja="${loja}"]`);
+        const inputUn = linhaProduto.querySelector(`.input-un[data-loja="${loja}"]`);
+        totalUnidadesProduto += ((parseInt(inputCx.value) || 0) * produto.fator) + (parseInt(inputUn.value) || 0);
+    });
+
+    document.getElementById(`total-${codigo}`).textContent = totalUnidadesProduto;
+}
