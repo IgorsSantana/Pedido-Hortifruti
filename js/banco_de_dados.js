@@ -1,6 +1,6 @@
 // --- BANCO DE DADOS DE PRODUTOS ---
 // Para adicionar, remover ou alterar produtos, edite esta lista.
-let produtos = [
+window.produtosIniciais = [
     { grupo: 'FRUTAS', codigo: '310100', nome: 'ABACATE', fator: 20.0, custoCaixa: 120.00, custoUnidade: 6.00 },
     { grupo: 'FRUTAS', codigo: '311283', nome: 'ABACAXI MEDIO', fator: 12.0, custoCaixa: 7.00, custoUnidade: 0.58 },
     { grupo: 'FRUTAS', codigo: '352544', nome: 'ABACAXI HAVAÍ', fator: 12.0, custoCaixa: 5.50, custoUnidade: 0.46 },
